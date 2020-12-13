@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
-
+import { useWindowSize } from './useCanvas.js';
 /* Change window size when resizing window */
-export function useWindowSize() {
-  const [size, setSize] = useState([0, 0]);
-  useLayoutEffect(() => {
-    function updateSize() {
-      setSize([window.innerWidth, window.innerHeight]);
-    }
-    window.addEventListener('resize', updateSize);
-    updateSize();
-    return () => window.removeEventListener('resize', updateSize);
-  }, []);
-  return size;
-}
+// function useWindowSize() {
+//   const [size, setSize] = useState([0, 0]);
+//   useLayoutEffect(() => {
+//     function updateSize() {
+//       setSize([window.innerWidth, window.innerHeight]);
+//     }
+//     window.addEventListener('resize', updateSize);
+//     updateSize();
+//     return () => window.removeEventListener('resize', updateSize);
+//   }, []);
+//   return size;
+// }
 
 /* ========================================================================== */
 
@@ -58,7 +58,7 @@ export function draw(ctx, canvasWidth, canvasHeight, gridSize){
   ctx.restore();
 };
 
-export function useCanvas(){
+export function useGridCanvas(){
     const canvasRef = useRef(null);
     const [coordinates, setCoordinates] = useState([]);
     // const canvasWidth = window.innerWidth - window.innerWidth % n_grids;
@@ -79,8 +79,8 @@ export function useCanvas(){
 
         // draw all coordinates held in state
         // coordinates.forEach((coordinate)=>{draw(ctx, coordinate)});
-        // draw(ctx, canvasWidth, canvasHeight, gridSize);
+        draw(ctx, canvasWidth, canvasHeight, gridSize);
     });
 
-    return [ coordinates, setCoordinates, canvasRef, canvasWidth, canvasHeight, n_grids, n_pitch, gridSize];
+    return [ canvasRef ];
 }
