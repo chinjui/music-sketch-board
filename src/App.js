@@ -7,7 +7,12 @@ import { canvasStatus, mouseWins, touchWins, mouseUpEventHandler } from './mouse
 import { ControlBar } from './ControlBar.js'
 
 function App() {
-  // control bar related
+  // canvas
+  const [ canvasRef, canvasWidth, canvasHeight, nGrids, nPitch, gridSize] = useCanvas();
+  const [ gridCanvasRef ] = useGridCanvas();
+
+  // consts and states
+  const adjusted_attr = ['pitch', 'velocity', 'duration', 'tempo'];
   const [curAttr, setCurAttr] = useState('velocity');  // selected attribute pencil
   const [stds, setStds] = useState({
     'pitch': 3,
@@ -15,25 +20,28 @@ function App() {
     'duration': 3,
     'tempo': 3
   });
+  // const [means, setMeans] = useState(adjusted_attr.map((attr, idx) => ({[attr]: new Array(nGrids)})));
 
-  // canvas
-  const [ canvasRef, canvasWidth, canvasHeight, nGrids, nPitch, gridSize] = useCanvas(stds, canvasStatus);
-  const [ gridCanvasRef ] = useGridCanvas();
+  // initialize value
+  useEffect(() => {
+    adjusted_attr.forEach((attr) => {canvasStatus.means[attr] = new Array(nGrids)});
+  }, []);
 
-  // canvas event handler
-  const adjusted_attr = ['pitch', 'velocity', 'duration', 'tempo'];
+  // handle window resizing
   useEffect(() => {
     const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
     canvas.addEventListener('mousedown', mouseWins);
     canvas.addEventListener('touchstart', touchWins);
 
     // canvasStatus.means: var to capture which grids are selected
-    adjusted_attr.forEach((attr) => {canvasStatus.means[attr] = new Array(nGrids)});
+    // adjusted_attr.forEach((attr) => {canvasStatus.means[attr] = new Array(nGrids)});
 
     // set canvas status
     [canvasStatus.nGrids, canvasStatus.nPitch] = [nGrids, nPitch];
     [canvasStatus.canvasWidth, canvasStatus.canvasHeight, canvasStatus.gridSize] =
         [canvasWidth, canvasHeight, gridSize];
+    redrawAll(nGrids, canvasStatus.means, stds, canvasStatus.colors, ctx, nPitch, gridSize);
 
     return () => {
       window.removeEventListener('mouseup', mouseUpEventHandler);
@@ -55,6 +63,13 @@ function App() {
   // control bar related
   function handlePencilClick(attr) {
     setCurAttr(attr);
+  }
+  function handleClearAttr(attr) {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    
+    canvasStatus.means[attr] = new Array(canvasStatus.means[attr].length);
+    redrawAll(nGrids, canvasStatus.means, stds, canvasStatus.colors, ctx, nPitch, gridSize);
   }
 
   // change the global var `curAttr` in mouseEvent.js when curAttr state changes
@@ -109,6 +124,7 @@ function App() {
         handlePencilClick={handlePencilClick}
         stds={stds}
         setStds={setStds}
+        handleClearAttr={handleClearAttr}
       />
     </div>
   );

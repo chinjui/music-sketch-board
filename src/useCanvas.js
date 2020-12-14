@@ -33,7 +33,7 @@ export function redrawOneColumn(x, selectedYs, stds, colors, ctx, nPitch, gridSi
   ctx.clearRect(x * gridSize, 0, gridSize, gridSize * nPitch)
 
   for (let attr in selectedYs) {
-    if (typeof selectedYs[attr][x] === 'undefined')
+    if (!selectedYs[attr][x])
       continue;
     for (let i = 0; i < nPitch; i++) {
       ctx.restore();

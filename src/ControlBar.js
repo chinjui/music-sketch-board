@@ -1,4 +1,4 @@
-import { Navbar, Nav, DropdownButton, Form } from 'react-bootstrap';
+import { Navbar, Nav, DropdownButton, Form, Button } from 'react-bootstrap';
 import React from 'react';
 // import { CSSTransition } from 'react-transition-group';
 
@@ -31,13 +31,14 @@ export function ControlBar(props) {
               <Form.Control
                 type="range"
                 min="0.5"
-                max="10"
+                max="8"
                 step="0.1"
                 defaultValue={props.stds[attr]}
                 onChange={(e) => handleStdChange(e, attr)}
               />
             </Form.Group>
           </Form>
+          <Button className="clearAttrButton btn-danger btn" onClick={() => props.handleClearAttr(attr)}>Clear Painting</Button>
         </DropdownButton>
       </Nav.Item>
     )
