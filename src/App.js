@@ -1,8 +1,8 @@
 import './App.css';
 import { Navbar, Nav, Alert, Button} from 'react-bootstrap';
-import React, { useState, useEffect } from 'react';
-import { useCanvas } from './useCanvas.js';
-import { useGridCanvas } from './useGridCanvas.js';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useCanvas, Canvas } from './useCanvas.js';
+import { useGridCanvas, GridCanvas } from './useGridCanvas.js';
 import { selectedYs, canvasStatus, mouseWins, touchWins, mouseUpEventHandler } from './mouseEvent.js';
 import { ControlBar } from './ControlBar.js'
 
@@ -32,7 +32,20 @@ function App() {
       window.removeEventListener('touchend', mouseUpEventHandler)
     };
   }, [canvasWidth, canvasHeight, gridSize]);
-
+  const canvasJsx = useMemo(() => (
+    <Canvas
+      forwardedRef={canvasRef}
+      width={canvasWidth}
+      height={canvasHeight}
+    />
+  ), [canvasWidth, canvasHeight]);
+  const gridCanvasJsx = useMemo(() => (
+    <GridCanvas
+      forwardedRef={gridCanvasRef}
+      width={canvasWidth}
+      height={canvasHeight}
+    />
+  ), [canvasWidth, canvasHeight]);
 
 
   /* ======================================================================== */
@@ -69,18 +82,8 @@ function App() {
         </Navbar.Brand>
       </Navbar>
       <div id="canvas-container" className="overflow-auto container" style={{width:canvasWidth, height:canvasHeight+70+100}}>
-        <canvas
-          className="App-canvas my-canvas"
-          ref={canvasRef}
-          width={canvasWidth}
-          height={canvasHeight}
-        />
-        <canvas
-          className="grid-canvas my-canvas"
-          ref={gridCanvasRef}
-          width={canvasWidth}
-          height={canvasHeight}
-        />
+        {canvasJsx}
+        {gridCanvasJsx}
       </div>
       <ControlBar
         curAttr={curAttr}

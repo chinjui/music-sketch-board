@@ -80,15 +80,21 @@ function selectY(x, y, ctx) {
   const scaled_y = Math.floor(y / canvasStatus.gridSize);
   const change = selectedYs[canvasStatus.curAttr][scaled_x] !== scaled_y;
   if (change) {
+    // set and draw
     selectedYs[canvasStatus.curAttr][scaled_x] = scaled_y;
     let std = 1;
+    ctx.restore();
     ctx.clearRect(scaled_x * canvasStatus.gridSize, 0, canvasStatus.gridSize, canvasStatus.canvasHeight)
 
-    for (let i = 0; i < canvasStatus.nPitch; i++) {
-      ctx.restore();
-      ctx.fillStyle=canvasStatus.color[canvasStatus.curAttr];
-      ctx.globalAlpha = normal_dist(scaled_y, std, i);
-      ctx.fillRect(scaled_x * canvasStatus.gridSize, i * canvasStatus.gridSize, canvasStatus.gridSize, canvasStatus.gridSize);
+    for (let attr in selectedYs) {
+      if (typeof selectedYs[attr][scaled_x] === 'undefined')
+        continue;
+      for (let i = 0; i < canvasStatus.nPitch; i++) {
+        ctx.restore();
+        ctx.fillStyle=canvasStatus.color[attr];
+        ctx.globalAlpha = normal_dist(selectedYs[attr][scaled_x], std, i) * 0.6;
+        ctx.fillRect(scaled_x * canvasStatus.gridSize, i * canvasStatus.gridSize, canvasStatus.gridSize, canvasStatus.gridSize);
+      }
     }
   }
   return change
@@ -110,7 +116,7 @@ function mouseDownEventHandler(e) {
     paint = true;
     var [x, y] = getCorrectMouseXY(e);
     if (paint) {
-        addClick(x, y, false);
+        // addClick(x, y, false);
         // drawNew();
         selectY(x, y, canvas.getContext("2d"));
     }
@@ -121,7 +127,7 @@ function touchstartEventHandler(e) {
     var [x, y] = getCorrectMouseXY(e);
     paint = true;
     if (paint) {
-        addClick(x, y, false);
+        // addClick(x, y, false);
         // addClick(e.touches[0].pageX - canvas.offsetLeft, e.touches[0].pageY - canvas.offsetTop, false);
         // drawNew();
     }
@@ -136,7 +142,7 @@ function mouseMoveEventHandler(e) {
     const canvas = e.currentTarget;
     var [x, y] = getCorrectMouseXY(e);
     if (paint) {
-        addClick(x, y, true);
+        // addClick(x, y, true);
         selectY(x, y, canvas.getContext("2d"));
         // drawNew();
     }
@@ -148,7 +154,7 @@ function touchMoveEventHandler(e) {
     if (paint) {
         // addClick(e.touches[0].pageX - canvas.offsetLeft, e.touches[0].pageY - canvas.offsetTop, true);
         // drawNew();
-        addClick(x, y, true);
+        // addClick(x, y, true);
     }
 }
 

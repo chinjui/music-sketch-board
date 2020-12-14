@@ -45,11 +45,13 @@
   position: absolute;
   top:55px;
   left:0px;
+  margin-left: 10px;
+  margin-top: 10px;
   margin-right: 30px;
   width: auto;
   min-width: 1000px;
   max-width: 3000px;
-  border: 8px solid #E67E220F;
+  /* border: 8px solid #E67E220F; */
   /* max-height: 80%; */
 }
 

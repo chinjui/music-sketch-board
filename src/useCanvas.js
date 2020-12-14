@@ -69,18 +69,35 @@ export function useCanvas(){
     const canvasWidth = window_width - window_width % n_grids;
     const canvasHeight = Math.floor(canvasWidth / n_grids) * n_pitch;
     const gridSize = Math.floor(canvasWidth / n_grids);
-    console.log("width, height, gridSize:", canvasWidth, canvasHeight, gridSize);
+    console.log("width, height, gridSize of drawCanvas:", canvasWidth, canvasHeight, gridSize);
 
-    useEffect(()=>{
-        const canvasObj = canvasRef.current;
-        const ctx = canvasObj.getContext('2d');
-        // clear the canvas area before rendering the coordinates held in state
-        ctx.clearRect( 0,0, canvasWidth, canvasHeight );
-
-        // draw all coordinates held in state
-        // coordinates.forEach((coordinate)=>{draw(ctx, coordinate)});
-        // draw(ctx, canvasWidth, canvasHeight, gridSize);
-    });
+    // useEffect(()=>{
+    //     const canvasObj = canvasRef.current;
+    //     const ctx = canvasObj.getContext('2d');
+    //     // clear the canvas area before rendering the coordinates held in state
+    //     // ctx.clearRect( 0,0, canvasWidth, canvasHeight );
+    //
+    //     // draw all coordinates held in state
+    //     // coordinates.forEach((coordinate)=>{draw(ctx, coordinate)});
+    //     // draw(ctx, canvasWidth, canvasHeight, gridSize);
+    // });
 
     return [ coordinates, setCoordinates, canvasRef, canvasWidth, canvasHeight, n_grids, n_pitch, gridSize];
 }
+
+export function Canvas(props) {
+  return (
+    <canvas
+      className="App-canvas my-canvas"
+      ref={props.forwardedRef}
+      width={props.width}
+      height={props.height}
+    />
+  )
+}
+
+// function areEqual(prevProps, nextProps) {
+//   return (prevProps.width === nextProps.width && prevProps.height === nextProps.height);
+// }
+//
+// export const MemoCanvas = React.memo(Canvas, areEqual);

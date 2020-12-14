@@ -69,7 +69,7 @@ export function useGridCanvas(){
     const canvasWidth = window_width - window_width % n_grids;
     const canvasHeight = Math.floor(canvasWidth / n_grids) * n_pitch;
     const gridSize = Math.floor(canvasWidth / n_grids);
-    console.log("width, height, gridSize:", canvasWidth, canvasHeight, gridSize);
+    console.log("width, height, gridSize of gridCanvas:", canvasWidth, canvasHeight, gridSize);
 
     useEffect(()=>{
         const canvasObj = canvasRef.current;
@@ -80,7 +80,25 @@ export function useGridCanvas(){
         // draw all coordinates held in state
         // coordinates.forEach((coordinate)=>{draw(ctx, coordinate)});
         draw(ctx, canvasWidth, canvasHeight, gridSize);
-    });
+        console.log("draw grid");
+    }, [canvasWidth, canvasHeight, gridSize]);
 
     return [ canvasRef ];
 }
+
+export function GridCanvas(props) {
+  return (
+    <canvas
+      className="grid-canvas my-canvas"
+      ref={props.forwardedRef}
+      width={props.width}
+      height={props.height}
+    />
+  )
+}
+
+// function areEqual(prevProps, nextProps) {
+//   return (prevProps.width === nextProps.width && prevProps.height === nextProps.height);
+// }
+//
+// export const MemoGridCanvas = React.memo(GridCanvas, areEqual);
