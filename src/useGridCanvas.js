@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useWindowSize } from './useCanvas.js';
 /* Change window size when resizing window */
 // function useWindowSize() {
@@ -60,7 +60,6 @@ export function draw(ctx, canvasWidth, canvasHeight, gridSize){
 
 export function useGridCanvas(){
     const canvasRef = useRef(null);
-    const [coordinates, setCoordinates] = useState([]);
     // const canvasWidth = window.innerWidth - window.innerWidth % n_grids;
     // const canvasHeight = window.innerHeight;
     let [window_width, window_height] = useWindowSize();

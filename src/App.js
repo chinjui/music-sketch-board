@@ -1,15 +1,23 @@
 import './App.css';
-import { Navbar, Nav, Alert, Button} from 'react-bootstrap';
+import { Navbar } from 'react-bootstrap';
 import React, { useState, useEffect, useMemo } from 'react';
-import { useCanvas, Canvas } from './useCanvas.js';
+import { useCanvas, Canvas, redrawAll } from './useCanvas.js';
 import { useGridCanvas, GridCanvas } from './useGridCanvas.js';
-import { selectedYs, canvasStatus, mouseWins, touchWins, mouseUpEventHandler } from './mouseEvent.js';
+import { canvasStatus, mouseWins, touchWins, mouseUpEventHandler } from './mouseEvent.js';
 import { ControlBar } from './ControlBar.js'
 
 function App() {
+  // control bar related
+  const [curAttr, setCurAttr] = useState('velocity');  // selected attribute pencil
+  const [stds, setStds] = useState({
+    'pitch': 3,
+    'velocity': 3,
+    'duration': 3,
+    'tempo': 3
+  });
+
   // canvas
-  const [ coordinates, setCoordinates, canvasRef, canvasWidth, canvasHeight,
-          nGrids, nPitch, gridSize] = useCanvas();
+  const [ canvasRef, canvasWidth, canvasHeight, nGrids, nPitch, gridSize] = useCanvas(stds, canvasStatus);
   const [ gridCanvasRef ] = useGridCanvas();
 
   // canvas event handler
@@ -19,8 +27,8 @@ function App() {
     canvas.addEventListener('mousedown', mouseWins);
     canvas.addEventListener('touchstart', touchWins);
 
-    // selectedYs: var to capture which grids are selected
-    adjusted_attr.forEach((attr) => {selectedYs[attr] = new Array(nGrids)});
+    // canvasStatus.means: var to capture which grids are selected
+    adjusted_attr.forEach((attr) => {canvasStatus.means[attr] = new Array(nGrids)});
 
     // set canvas status
     [canvasStatus.nGrids, canvasStatus.nPitch] = [nGrids, nPitch];
@@ -32,26 +40,19 @@ function App() {
       window.removeEventListener('touchend', mouseUpEventHandler)
     };
   }, [canvasWidth, canvasHeight, gridSize]);
-  const canvasJsx = useMemo(() => (
-    <Canvas
-      forwardedRef={canvasRef}
-      width={canvasWidth}
-      height={canvasHeight}
-    />
-  ), [canvasWidth, canvasHeight]);
-  const gridCanvasJsx = useMemo(() => (
-    <GridCanvas
-      forwardedRef={gridCanvasRef}
-      width={canvasWidth}
-      height={canvasHeight}
-    />
-  ), [canvasWidth, canvasHeight]);
+
+  useEffect(()=>{
+      const canvasObj = canvasRef.current;
+      const ctx = canvasObj.getContext('2d');
+      // clear the canvas area before rendering the coordinates held in state
+      ctx.clearRect( 0,0, canvasWidth, canvasHeight );
+
+      redrawAll(nGrids, canvasStatus.means, stds, canvasStatus.colors, ctx, nPitch, gridSize);
+  }, [stds]);
 
 
   /* ======================================================================== */
   // control bar related
-  const [curAttr, setCurAttr] = useState('velocity');  // selected attribute pencil
-
   function handlePencilClick(attr) {
     setCurAttr(attr);
   }
@@ -59,20 +60,29 @@ function App() {
   // change the global var `curAttr` in mouseEvent.js when curAttr state changes
   useEffect(() => {
     canvasStatus.curAttr = curAttr;
-  }, [curAttr]);
+    canvasStatus.stds = stds;
+  }, [curAttr, stds]);
 
   /* ======================================================================== */
 
-  // const handleCanvasClick=(event)=>{
-  //   // on each click get current mouse location
-  //   const currentCoord = { x: event.clientX, y: event.clientY };
-  //   // add the newest mouse location to an array in state
-  //   setCoordinates([...coordinates, currentCoord]);
-  // };
-  //
-  // const handleClearCanvas=(event)=>{
-  //   setCoordinates([]);
-  // };
+  /* ======================================================================== */
+  // canvas JSX
+  // const canvasJsx = useMemo(() => (
+  //   <Canvas
+  //     forwardedRef={canvasRef}
+  //     width={canvasWidth}
+  //     height={canvasHeight}
+  //   />
+  // ), [canvasRef, canvasWidth, canvasHeight, stds.pitch]);
+  // const gridCanvasJsx = useMemo(() => (
+  //   <GridCanvas
+  //     forwardedRef={gridCanvasRef}
+  //     width={canvasWidth}
+  //     height={canvasHeight}
+  //   />
+  // ), [gridCanvasRef, canvasWidth, canvasHeight]);
+  /* ======================================================================== */
+
 
   return (
     <div className="App">
@@ -82,12 +92,23 @@ function App() {
         </Navbar.Brand>
       </Navbar>
       <div id="canvas-container" className="overflow-auto container" style={{width:canvasWidth, height:canvasHeight+70+100}}>
-        {canvasJsx}
-        {gridCanvasJsx}
+        <Canvas
+          forwardedRef={canvasRef}
+          width={canvasWidth}
+          height={canvasHeight}
+          stds={stds}
+        />
+        <GridCanvas
+          forwardedRef={gridCanvasRef}
+          width={canvasWidth}
+          height={canvasHeight}
+        />
       </div>
       <ControlBar
         curAttr={curAttr}
         handlePencilClick={handlePencilClick}
+        stds={stds}
+        setStds={setStds}
       />
     </div>
   );

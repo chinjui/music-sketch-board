@@ -1,26 +1,28 @@
-export const clickX = [];
-export const clickY = [];
-export const clickDrag = [];
+import { redrawOneColumn } from './useCanvas.js'
+
+// export const clickX = [];
+// export const clickY = [];
+// export const clickDrag = [];
 export var paint;
-export const selectedYs = {};
-export const canvasStatus = {};
-canvasStatus.color = {
+export const canvasStatus = {means: {}};
+export const means = canvasStatus.means;
+canvasStatus.colors = {
   'pitch': "#E74C3C",
   'velocity': "#3498DB",
   'duration': "#27AE60",
   'tempo': "#F4D03F",
 }
-/**
- * Add information where the user clicked at.
- * @param {number} x
- * @param {number} y
- * @return {boolean} dragging
- */
-function addClick(x, y, dragging) {
-    clickX.push(x);
-    clickY.push(y);
-    clickDrag.push(dragging);
-}
+// /**
+//  * Add information where the user clicked at.
+//  * @param {number} x
+//  * @param {number} y
+//  * @return {boolean} dragging
+//  */
+// function addClick(x, y, dragging) {
+//     clickX.push(x);
+//     clickY.push(y);
+//     clickDrag.push(dragging);
+// }
 
 /**
  * Redraw the complete canvas.
@@ -71,31 +73,30 @@ function addClick(x, y, dragging) {
 //     }
 // }
 
-function normal_dist(mean, std, loc) {
-  return 1/Math.pow(Math.E, (Math.pow(loc-mean, 2))/(2*std*std));
-}
+
 
 function selectY(x, y, ctx) {
   const scaled_x = Math.floor(x / canvasStatus.gridSize);
   const scaled_y = Math.floor(y / canvasStatus.gridSize);
-  const change = selectedYs[canvasStatus.curAttr][scaled_x] !== scaled_y;
+  const change = means[canvasStatus.curAttr][scaled_x] !== scaled_y;
   if (change) {
     // set and draw
-    selectedYs[canvasStatus.curAttr][scaled_x] = scaled_y;
-    let std = 1;
-    ctx.restore();
-    ctx.clearRect(scaled_x * canvasStatus.gridSize, 0, canvasStatus.gridSize, canvasStatus.canvasHeight)
-
-    for (let attr in selectedYs) {
-      if (typeof selectedYs[attr][scaled_x] === 'undefined')
-        continue;
-      for (let i = 0; i < canvasStatus.nPitch; i++) {
-        ctx.restore();
-        ctx.fillStyle=canvasStatus.color[attr];
-        ctx.globalAlpha = normal_dist(selectedYs[attr][scaled_x], std, i) * 0.6;
-        ctx.fillRect(scaled_x * canvasStatus.gridSize, i * canvasStatus.gridSize, canvasStatus.gridSize, canvasStatus.gridSize);
-      }
-    }
+    means[canvasStatus.curAttr][scaled_x] = scaled_y;
+    redrawOneColumn(scaled_x, means, canvasStatus.stds, canvasStatus.colors, ctx, canvasStatus.nPitch, canvasStatus.gridSize);
+    // let std = 5;
+    // ctx.restore();
+    // ctx.clearRect(scaled_x * canvasStatus.gridSize, 0, canvasStatus.gridSize, canvasStatus.canvasHeight)
+    //
+    // for (let attr in selectedYs) {
+    //   if (typeof selectedYs[attr][scaled_x] === 'undefined')
+    //     continue;
+    //   for (let i = 0; i < canvasStatus.nPitch; i++) {
+    //     ctx.restore();
+    //     ctx.fillStyle=canvasStatus.color[attr];
+    //     ctx.globalAlpha = normal_dist(selectedYs[attr][scaled_x], std, i) * 0.7;
+    //     ctx.fillRect(scaled_x * canvasStatus.gridSize, i * canvasStatus.gridSize, canvasStatus.gridSize, canvasStatus.gridSize);
+    //   }
+    // }
   }
   return change
 }
@@ -130,6 +131,7 @@ function touchstartEventHandler(e) {
         // addClick(x, y, false);
         // addClick(e.touches[0].pageX - canvas.offsetLeft, e.touches[0].pageY - canvas.offsetTop, false);
         // drawNew();
+        selectY(x, y, canvas.getContext("2d"));
     }
 }
 
@@ -155,6 +157,7 @@ function touchMoveEventHandler(e) {
         // addClick(e.touches[0].pageX - canvas.offsetLeft, e.touches[0].pageY - canvas.offsetTop, true);
         // drawNew();
         // addClick(x, y, true);
+        selectY(x, y, canvas.getContext("2d"));
     }
 }
 
