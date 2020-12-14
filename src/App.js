@@ -7,8 +7,6 @@ import { selectedYs, canvasStatus, mouseWins, touchWins, mouseUpEventHandler } f
 import { ControlBar } from './ControlBar.js'
 
 function App() {
-  const [test, setTest] = useState(0);
-
   // canvas
   const [ coordinates, setCoordinates, canvasRef, canvasWidth, canvasHeight,
           nGrids, nPitch, gridSize] = useCanvas();
@@ -16,7 +14,6 @@ function App() {
 
   // canvas event handler
   const adjusted_attr = ['pitch', 'velocity', 'duration', 'tempo'];
-  const curAttr = 'pitch';
   useEffect(() => {
     const canvas = canvasRef.current;
     canvas.addEventListener('mousedown', mouseWins);
@@ -36,9 +33,22 @@ function App() {
     };
   }, [canvasWidth, canvasHeight, gridSize]);
 
+
+
+  /* ======================================================================== */
+  // control bar related
+  const [curAttr, setCurAttr] = useState('velocity');  // selected attribute pencil
+
+  function handlePencilClick(attr) {
+    setCurAttr(attr);
+  }
+
+  // change the global var `curAttr` in mouseEvent.js when curAttr state changes
   useEffect(() => {
     canvasStatus.curAttr = curAttr;
   }, [curAttr]);
+
+  /* ======================================================================== */
 
   // const handleCanvasClick=(event)=>{
   //   // on each click get current mouse location
@@ -58,7 +68,7 @@ function App() {
           Music Sketch Board
         </Navbar.Brand>
       </Navbar>
-      <div id="canvas-container" className="overflow-auto container">
+      <div id="canvas-container" className="overflow-auto container" style={{width:canvasWidth, height:canvasHeight+70+100}}>
         <canvas
           className="App-canvas my-canvas"
           ref={canvasRef}
@@ -72,7 +82,10 @@ function App() {
           height={canvasHeight}
         />
       </div>
-      <ControlBar />
+      <ControlBar
+        curAttr={curAttr}
+        handlePencilClick={handlePencilClick}
+      />
     </div>
   );
 }

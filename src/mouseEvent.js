@@ -6,8 +6,8 @@ export const selectedYs = {};
 export const canvasStatus = {};
 canvasStatus.color = {
   'pitch': "#E74C3C",
-  'velocity': "#9B59B6",
-  'duration': "#48C9B0",
+  'velocity': "#3498DB",
+  'duration': "#27AE60",
   'tempo': "#F4D03F",
 }
 /**
@@ -86,6 +86,7 @@ function selectY(x, y, ctx) {
 
     for (let i = 0; i < canvasStatus.nPitch; i++) {
       ctx.restore();
+      ctx.fillStyle=canvasStatus.color[canvasStatus.curAttr];
       ctx.globalAlpha = normal_dist(scaled_y, std, i);
       ctx.fillRect(scaled_x * canvasStatus.gridSize, i * canvasStatus.gridSize, canvasStatus.gridSize, canvasStatus.gridSize);
     }

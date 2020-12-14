@@ -1,39 +1,37 @@
-import { Navbar, Nav, Alert, Button} from 'react-bootstrap';
+import { Navbar, Nav, Alert, Button, Dropdown, DropdownButton, Form } from 'react-bootstrap';
 import React, { useState, useEffect } from 'react';
+import { CSSTransition } from 'react-transition-group';
 
-export function ControlBar() {
+const capitalize = (s) => {
+  if (typeof s !== 'string') return ''
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+export function ControlBar(props) {
+  const curAttr = props.curAttr;
+
+  const pencil_colors = ['red', 'blue', 'green', 'yellow'];
+  const attr_pencil_items = ['pitch', 'velocity', 'duration', 'tempo'].map((attr, index) => {
+    let select_class = curAttr === attr? "selected-pencil" : "";
+    return (
+      <Nav.Item className="controlbar-item center" key={attr}>
+        <img className={`colored-pencil ${select_class}`}
+             src={`colored-pencil-${pencil_colors[index]}.png`}
+             onClick={()=>{props.handlePencilClick(attr);}}
+        />
+        <DropdownButton className="pencil-label" id="dropdown-basic-button" title={capitalize(attr)} drop="up" variant="secondary">
+            <Form.Group controlId="formBasicRangeCustom" className="std-form">
+              <Form.Label>Standard Deviation</Form.Label>
+              <Form.Control type="range" custom />
+            </Form.Group>
+        </DropdownButton>
+      </Nav.Item>
+    )
+  })
+
   return (
     <Navbar id="control-bar" className="center">
-        <Nav.Item>
-          <Nav.Link eventKey="link-1">Link</Nav.Link>
-        </Nav.Item>
-        <Nav.Item>
-          <img className="colored-pencil selected-pencil" src="colored-pencil-red.png"/>
-          <div className="pencil-label">Pitch</div>
-        </Nav.Item>
-        <Nav.Item>
-          <img className="colored-pencil" src="colored-pencil-blue.png"/>
-          <div className="pencil-label">Velocity</div>
-        </Nav.Item>
-        <Nav.Item>
-          <img className="colored-pencil" src="colored-pencil-green.png"/>
-          <div className="pencil-label">Duration</div>
-        </Nav.Item>
-        <Nav.Item>
-          <img className="colored-pencil" src="colored-pencil-yellow.png"/>
-          <div className="pencil-label">Tempo</div>
-        </Nav.Item>
-        <Nav.Item>
-          <Nav.Link eventKey="link-1">Link</Nav.Link>
-        </Nav.Item>
-        <Nav.Item>
-          <Nav.Link eventKey="link-2">Link</Nav.Link>
-        </Nav.Item>
-        <Nav.Item>
-          <Nav.Link eventKey="disabled" disabled>
-            Disabled
-          </Nav.Link>
-        </Nav.Item>
+        {attr_pencil_items}
     </Navbar>
   );
 }
