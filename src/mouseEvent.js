@@ -1,8 +1,18 @@
-import { redrawOneColumn } from './useCanvas.js'
+import { redrawOneColumn } from './useCanvas.js';
+import * as Tone from 'tone';
+import { SampleLibrary } from './Tonejs-Instruments.js';
 
-// export const clickX = [];
-// export const clickY = [];
-// export const clickDrag = [];
+// const synth = new Tone.AMSynth().toDestination();
+SampleLibrary.setExt('.wav');
+var synth = SampleLibrary.load({
+  instruments: "piano",
+  onload: () => {
+    console.log("loaded!");
+  }
+  });
+synth.toMaster();
+// const synth = piano;
+
 export var paint;
 export const canvasStatus = {means: {}};
 export const means = canvasStatus.means;
@@ -12,6 +22,9 @@ canvasStatus.colors = {
   'duration': "#27AE60",
   'tempo': "#F4D03F",
 }
+
+for (let i = 0; i < 48; i++)
+  console.log("Tick: ", Tone.Time(i/4).toTicks(), ", Midi: ", Tone.Time(i/4).toNotation())
 // /**
 //  * Add information where the user clicked at.
 //  * @param {number} x
@@ -73,6 +86,12 @@ canvasStatus.colors = {
 //     }
 // }
 
+function pitchNumber2noteSymbol(pitch) {
+  const symbol = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+  // 45 -> A2
+  return symbol[(pitch + 48) % 12] + (Math.floor(pitch / 12) + 2);
+}
 
 
 function selectY(x, y, ctx) {
@@ -83,20 +102,31 @@ function selectY(x, y, ctx) {
     // set and draw
     means[canvasStatus.curAttr][scaled_x] = scaled_y;
     redrawOneColumn(scaled_x, means, canvasStatus.stds, canvasStatus.colors, ctx, canvasStatus.nPitch, canvasStatus.gridSize);
-    // let std = 5;
-    // ctx.restore();
-    // ctx.clearRect(scaled_x * canvasStatus.gridSize, 0, canvasStatus.gridSize, canvasStatus.canvasHeight)
-    //
-    // for (let attr in selectedYs) {
-    //   if (typeof selectedYs[attr][scaled_x] === 'undefined')
-    //     continue;
-    //   for (let i = 0; i < canvasStatus.nPitch; i++) {
-    //     ctx.restore();
-    //     ctx.fillStyle=canvasStatus.color[attr];
-    //     ctx.globalAlpha = normal_dist(selectedYs[attr][scaled_x], std, i) * 0.7;
-    //     ctx.fillRect(scaled_x * canvasStatus.gridSize, i * canvasStatus.gridSize, canvasStatus.gridSize, canvasStatus.gridSize);
-    //   }
-    // }
+
+    // play sound
+    function toPitchSymbol(value) {
+      if (typeof value === 'undefined') value = 11;
+      return pitchNumber2noteSymbol(47-value);
+    }
+    function toVelocity(value) {
+      return typeof value === 'undefined'? -5 : 5 - value;
+    }
+    function toDuration(value) {
+      return typeof value === 'undefined'? 1 : (47-value)/12;
+    }
+    if (canvasStatus.curAttr === 'pitch') {
+      synth.volume.value = toVelocity(means['velocity'][scaled_x])
+      synth.triggerAttackRelease(toPitchSymbol(means['pitch'][scaled_x]), "8n");
+    }
+    else if (canvasStatus.curAttr === 'velocity') {
+      synth.volume.value = toVelocity(means['velocity'][scaled_x]);
+      synth.triggerAttackRelease(toPitchSymbol(means['pitch'][scaled_x]), "8n");
+    }
+    else if (canvasStatus.curAttr === 'duration') {
+      synth.volume.value = toVelocity(means['velocity'][scaled_x]);
+      synth.triggerAttackRelease(toPitchSymbol(means['pitch'][scaled_x]), toDuration(means['duration'][scaled_x]));
+    }
+
   }
   return change
 }
@@ -117,8 +147,6 @@ function mouseDownEventHandler(e) {
     paint = true;
     var [x, y] = getCorrectMouseXY(e);
     if (paint) {
-        // addClick(x, y, false);
-        // drawNew();
         selectY(x, y, canvas.getContext("2d"));
     }
 }
@@ -128,15 +156,11 @@ function touchstartEventHandler(e) {
     var [x, y] = getCorrectMouseXY(e);
     paint = true;
     if (paint) {
-        // addClick(x, y, false);
-        // addClick(e.touches[0].pageX - canvas.offsetLeft, e.touches[0].pageY - canvas.offsetTop, false);
-        // drawNew();
         selectY(x, y, canvas.getContext("2d"));
     }
 }
 
 export function mouseUpEventHandler(e) {
-    // context.closePath();
     paint = false;
 }
 
@@ -144,9 +168,7 @@ function mouseMoveEventHandler(e) {
     const canvas = e.currentTarget;
     var [x, y] = getCorrectMouseXY(e);
     if (paint) {
-        // addClick(x, y, true);
         selectY(x, y, canvas.getContext("2d"));
-        // drawNew();
     }
 }
 
@@ -154,9 +176,6 @@ function touchMoveEventHandler(e) {
     const canvas = e.currentTarget;
     var [x, y] = getCorrectMouseXY(e);
     if (paint) {
-        // addClick(e.touches[0].pageX - canvas.offsetLeft, e.touches[0].pageY - canvas.offsetTop, true);
-        // drawNew();
-        // addClick(x, y, true);
         selectY(x, y, canvas.getContext("2d"));
     }
 }

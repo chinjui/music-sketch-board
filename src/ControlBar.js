@@ -31,7 +31,7 @@ export function ControlBar(props) {
               <Form.Control
                 type="range"
                 min="0.5"
-                max="8"
+                max="9"
                 step="0.1"
                 defaultValue={props.stds[attr]}
                 onChange={(e) => handleStdChange(e, attr)}
