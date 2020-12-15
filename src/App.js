@@ -67,7 +67,7 @@ function App() {
   function handleClearAttr(attr) {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    
+
     canvasStatus.means[attr] = new Array(canvasStatus.means[attr].length);
     redrawAll(nGrids, canvasStatus.means, stds, canvasStatus.colors, ctx, nPitch, gridSize);
   }

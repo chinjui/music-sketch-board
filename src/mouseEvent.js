@@ -2,12 +2,19 @@ import { redrawOneColumn } from './useCanvas.js';
 import * as Tone from 'tone';
 import { SampleLibrary } from './Tonejs-Instruments.js';
 
+// loading functions
+const showLoader = () => document.getElementById('loader').classList.remove('loader--hide');
+const hideLoader = () => document.getElementById('loader').classList.add('loader--hide');
+
 // const synth = new Tone.AMSynth().toDestination();
 SampleLibrary.setExt('.wav');
 var synth = SampleLibrary.load({
   instruments: "piano",
   onload: () => {
     console.log("loaded!");
+    hideLoader();
+    document.body.style['pointer-events'] = "all"; // activate pointer events (default is set to inactive in index.css)
+
   }
   });
 synth.toMaster();
@@ -23,8 +30,6 @@ canvasStatus.colors = {
   'tempo': "#F4D03F",
 }
 
-for (let i = 0; i < 48; i++)
-  console.log("Tick: ", Tone.Time(i/4).toTicks(), ", Midi: ", Tone.Time(i/4).toNotation())
 // /**
 //  * Add information where the user clicked at.
 //  * @param {number} x
@@ -109,10 +114,10 @@ function selectY(x, y, ctx) {
       return pitchNumber2noteSymbol(47-value);
     }
     function toVelocity(value) {
-      return typeof value === 'undefined'? -5 : 5 - value;
+      return typeof value === 'undefined'? -5 : 4 - value / 1.5;
     }
     function toDuration(value) {
-      return typeof value === 'undefined'? 1 : (47-value)/12;
+      return typeof value === 'undefined'? 8 : (47-value)/8;
     }
     if (canvasStatus.curAttr === 'pitch') {
       synth.volume.value = toVelocity(means['velocity'][scaled_x])
