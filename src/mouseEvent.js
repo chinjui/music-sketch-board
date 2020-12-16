@@ -6,7 +6,7 @@ import { SampleLibrary } from './Tonejs-Instruments.js';
 const showLoader = () => document.getElementById('loader').classList.remove('loader--hide');
 const hideLoader = () => document.getElementById('loader').classList.add('loader--hide');
 
-// const synth = new Tone.AMSynth().toDestination();
+//const synth = new Tone.AMSynth().toDestination();
 SampleLibrary.setExt('.wav');
 var synth = SampleLibrary.load({
   instruments: "piano",
@@ -18,7 +18,7 @@ var synth = SampleLibrary.load({
   }
   });
 synth.toMaster();
-// const synth = piano;
+
 
 export var paint;
 export const canvasStatus = {means: {}};
@@ -103,6 +103,7 @@ function selectY(x, y, ctx) {
   const scaled_x = Math.floor(x / canvasStatus.gridSize);
   const scaled_y = Math.floor(y / canvasStatus.gridSize);
   const change = means[canvasStatus.curAttr][scaled_x] !== scaled_y;
+  console.log(means[canvasStatus.curAttr][scaled_x], scaled_y)
   if (change) {
     // set and draw
     means[canvasStatus.curAttr][scaled_x] = scaled_y;
@@ -120,17 +121,18 @@ function selectY(x, y, ctx) {
       return typeof value === 'undefined'? 8 : (47-value)/8;
     }
     if (canvasStatus.curAttr === 'pitch') {
-      synth.volume.value = toVelocity(means['velocity'][scaled_x])
+      synth.volume.value = -3; // toVelocity(means['velocity'][scaled_x])
       synth.triggerAttackRelease(toPitchSymbol(means['pitch'][scaled_x]), "8n");
     }
     else if (canvasStatus.curAttr === 'velocity') {
       synth.volume.value = toVelocity(means['velocity'][scaled_x]);
-      synth.triggerAttackRelease(toPitchSymbol(means['pitch'][scaled_x]), "8n");
+      synth.triggerAttackRelease("C3", "8n");
+      // synth.triggerAttackRelease(toPitchSymbol(means['pitch'][scaled_x]), "8n");
     }
-    else if (canvasStatus.curAttr === 'duration') {
-      synth.volume.value = toVelocity(means['velocity'][scaled_x]);
-      synth.triggerAttackRelease(toPitchSymbol(means['pitch'][scaled_x]), toDuration(means['duration'][scaled_x]));
-    }
+    // else if (canvasStatus.curAttr === 'duration') {
+    //   synth.volume.value = toVelocity(means['velocity'][scaled_x]);
+    //   synth.triggerAttackRelease(toPitchSymbol(means['pitch'][scaled_x]), toDuration(means['duration'][scaled_x]));
+    // }
 
   }
   return change
